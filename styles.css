@@ -272,4 +272,13 @@ input[type="datetime-local"] {
     cursor: pointer;
     font-size: 20px;
 }
+
+.version-tag {
+    text-align: center;
+    margin: 0 auto;
+    padding-bottom: 10px;
+    font-size: 10px;
+    opacity: 0.6;
+    color: var(--tg-theme-text-color);
+}
  

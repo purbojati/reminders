@@ -1,4 +1,5 @@
 const tg = window.Telegram.WebApp;
+const APP_VERSION = '0.001';
 tg.ready();
 tg.expand();
 
