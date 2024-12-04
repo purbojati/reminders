@@ -1,6 +1,10 @@
 const tg = window.Telegram.WebApp;
-const APP_VERSION = '0.001';
-tg.ready();
+const APP_VERSION = '0.002';
+tg.ready(() => {
+    document.documentElement.style.setProperty('--tg-viewport-height', `${window.innerHeight}px`);
+    setThemeClass();
+    loadReminders();
+});
 tg.expand();
 
 // Initialize MainButton
@@ -21,7 +25,10 @@ const setThemeClass = () => {
     document.documentElement.className = tg.colorScheme;
 }
 setThemeClass();
-tg.onEvent('themeChanged', setThemeClass);
+tg.onEvent('themeChanged', () => {
+    setThemeClass();
+    document.documentElement.style.setProperty('--tg-viewport-height', `${window.innerHeight}px`);
+});
 
 // Update the reminder input handler
 reminderInput.addEventListener('input', (e) => {
