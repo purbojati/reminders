@@ -25,6 +25,9 @@ body {
     padding: 0;
     background-color: var(--tg-theme-bg-color);
     color: var(--tg-theme-text-color);
+    height: 100vh;
+    height: calc(var(--tg-viewport-height, 100vh));
+    overflow-y: auto;
 }
 
 .header {
@@ -119,6 +122,8 @@ body {
     background: var(--modal-overlay);
     z-index: 1000;
     animation: fadeIn 0.2s ease-out;
+    height: 100vh;
+    height: calc(var(--tg-viewport-height, 100vh));
 }
 
 .modal-content {
@@ -129,7 +134,7 @@ body {
     background: var(--tg-theme-bg-color);
     padding: 20px;
     border-radius: 20px 20px 0 0;
-    max-height: 80vh;
+    max-height: calc(var(--tg-viewport-height, 100vh) * 0.8);
     overflow-y: auto;
     animation: slideUp 0.3s ease-out;
 }
@@ -191,8 +196,8 @@ input {
 
 @media screen and (max-height: 600px) {
     .modal-content {
-        max-height: 100vh;
-        height: 100vh;
+        max-height: var(--tg-viewport-height, 100vh);
+        height: var(--tg-viewport-height, 100vh);
         border-radius: 0;
     }
 }

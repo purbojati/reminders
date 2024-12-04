@@ -1,5 +1,11 @@
 const tg = window.Telegram.WebApp;
 tg.ready();
+tg.expand();
+
+// Initialize MainButton
+const mainButton = tg.MainButton;
+mainButton.setText('Save Reminder');
+mainButton.hide();
 
 // DOM Elements
 const reminderInput = document.getElementById('reminderTitle');
@@ -16,32 +22,23 @@ const setThemeClass = () => {
 setThemeClass();
 tg.onEvent('themeChanged', setThemeClass);
 
-// Handle new reminder input
-reminderInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && reminderInput.value.trim()) {
-        if (e.shiftKey) {
-            // Open modal with date picker when Shift+Enter is pressed
-            openModal(reminderInput.value.trim());
-        } else {
-            // Quick add without date
-            const reminder = {
-                id: Date.now(),
-                title: reminderInput.value.trim(),
-                date: null,
-                completed: false
-            };
-            storeReminder(reminder);
-            addReminderToUI(reminder);
-            reminderInput.value = '';
-            
-            // Send data to Telegram Bot
-            const reminderData = {
-                type: 'new_reminder',
-                reminder: reminder
-            };
-            tg.sendData(JSON.stringify(reminderData));
-        }
+// Update the reminder input handler
+reminderInput.addEventListener('input', (e) => {
+    if (e.target.value.trim()) {
+        mainButton.show();
+    } else {
+        mainButton.hide();
     }
+});
+
+// Update MainButton click handler
+mainButton.onClick(() => {
+    const title = reminderInput.value.trim();
+    if (!title) return;
+    
+    // Open modal instead of directly creating reminder
+    openModal(title);
+    mainButton.hide();
 });
 
 // Add these new functions
@@ -59,6 +56,7 @@ function closeModal() {
     editingReminderId = null;
 }
 
+// Update saveReminder function
 function saveReminder() {
     const title = modalReminderTitle.value.trim();
     const date = modalDateTime.value;
@@ -89,11 +87,7 @@ function saveReminder() {
 
     addReminderToUI(reminder);
     closeModal();
-
-    // Clear input only if it was a new reminder
-    if (!editingReminderId) {
-        reminderInput.value = '';
-    }
+    reminderInput.value = ''; // Clear input field
 
     // Send data to Telegram Bot
     const reminderData = {
@@ -218,5 +212,23 @@ function loadReminders() {
     // Then add completed reminders
     reminders.filter(r => r.completed).forEach(reminder => addReminderToUI(reminder));
 }
+
+// Add this after tg.ready();
+document.documentElement.style.setProperty('--tg-viewport-height', `${window.innerHeight}px`);
+window.addEventListener('resize', () => {
+    document.documentElement.style.setProperty('--tg-viewport-height', `${window.innerHeight}px`);
+});
+
+// Add keyboard event handler for the input
+reminderInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const title = reminderInput.value.trim();
+        if (!title) return;
+        
+        openModal(title);
+        mainButton.hide();
+    }
+});
 
 loadReminders(); 
