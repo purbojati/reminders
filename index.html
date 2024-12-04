@@ -27,8 +27,8 @@
 
         <div class="reminder-list" id="reminderList">
             <div class="reminder-item new-reminder">
-                <div class="reminder-checkbox add-icon">+</div>
-                <input type="text" id="reminderTitle" placeholder="New Reminder" />
+                <div class="reminder-checkbox add-icon" onclick="openModal()">+</div>
+                <input type="text" id="reminderTitle" placeholder="New Reminder" onkeypress="if(event.key === 'Enter') openModal()" />
                 <div class="reminder-actions">
                     <button class="date-button" onclick="openModal()">📅</button>
                 </div>
@@ -38,4 +38,4 @@
     <div class="version-tag">v0.002</div>
     <script src="app.js"></script>
 </body>
-</html> 
+</html>
