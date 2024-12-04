@@ -1,11 +1,71 @@
 const tg = window.Telegram.WebApp;
-const APP_VERSION = '0.002';
-tg.ready(() => {
-    document.documentElement.style.setProperty('--tg-viewport-height', `${window.innerHeight}px`);
+
+// Initialize app with proper event handling
+document.addEventListener('DOMContentLoaded', () => {
+    // Inform Telegram that the Mini App is ready
+    tg.ready();
+    
+    // Expand to full height
+    tg.expand();
+
+    // Set viewport height and handle theme
+    const setViewportHeight = () => {
+        document.documentElement.style.setProperty('--tg-viewport-height', `${window.innerHeight}px`);
+    }
+    
+    setViewportHeight();
     setThemeClass();
     loadReminders();
+
+    // Handle viewport changes
+    window.addEventListener('resize', setViewportHeight);
+
+    // Handle theme changes
+    tg.onEvent('themeChanged', () => {
+        setThemeClass();
+        setViewportHeight();
+    });
+
+    // Handle viewport changes
+    tg.onEvent('viewportChanged', ({ isStateStable }) => {
+        if (isStateStable) {
+            setViewportHeight();
+        }
+    });
+
+    // Handle back button
+    tg.BackButton.onClick(() => {
+        if (reminderModal.style.display === 'block') {
+            closeModal();
+            return;
+        }
+        tg.close();
+    });
+
+    // Handle main button
+    const mainButton = tg.MainButton;
+    mainButton.setText('Save Reminder');
+    mainButton.onClick(saveReminder);
+
+    // Handle closing confirmation
+    tg.enableClosingConfirmation();
 });
-tg.expand();
+
+// Initialize theme with CSS variables
+const setThemeClass = () => {
+    document.documentElement.className = tg.colorScheme;
+    
+    // Set theme colors from Telegram theme params
+    const root = document.documentElement;
+    const params = tg.themeParams;
+    
+    root.style.setProperty('--tg-theme-bg-color', params.bg_color);
+    root.style.setProperty('--tg-theme-text-color', params.text_color);
+    root.style.setProperty('--tg-theme-hint-color', params.hint_color);
+    root.style.setProperty('--tg-theme-link-color', params.link_color);
+    root.style.setProperty('--tg-theme-button-color', params.button_color);
+    root.style.setProperty('--tg-theme-button-text-color', params.button_text_color);
+}
 
 // DOM Elements
 const reminderInput = document.getElementById('reminderTitle');
@@ -14,16 +74,6 @@ const reminderModal = document.getElementById('reminderModal');
 const modalReminderTitle = document.getElementById('modalReminderTitle');
 const modalDateTime = document.getElementById('modalDateTime');
 let editingReminderId = null;
-
-// Initialize theme
-const setThemeClass = () => {
-    document.documentElement.className = tg.colorScheme;
-}
-setThemeClass();
-tg.onEvent('themeChanged', () => {
-    setThemeClass();
-    document.documentElement.style.setProperty('--tg-viewport-height', `${window.innerHeight}px`);
-});
 
 // Update the reminder input handler - simplified
 reminderInput.addEventListener('keypress', (e) => {
@@ -42,6 +92,10 @@ function openModal(title = '') {
     editingReminderId = null;
     reminderModal.style.display = 'block';
     modalReminderTitle.focus();
+    
+    // Show back button and main button
+    tg.BackButton.show();
+    tg.MainButton.show();
 }
 
 // Simplified saveReminder function
@@ -73,6 +127,10 @@ function saveReminder() {
 function closeModal() {
     reminderModal.style.display = 'none';
     editingReminderId = null;
+    
+    // Hide back button and main button
+    tg.BackButton.hide();
+    tg.MainButton.hide();
 }
 
 // Add reminder to UI
