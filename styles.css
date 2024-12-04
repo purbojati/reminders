@@ -5,6 +5,18 @@
     --tg-theme-link-color: #2481cc;
     --tg-theme-button-color: #2481cc;
     --tg-theme-button-text-color: #ffffff;
+    --item-bg-color: rgba(0,0,0,0.03);
+    --modal-overlay: rgba(0,0,0,0.5);
+    --border-color: rgba(0,0,0,0.1);
+}
+
+[class="dark"] {
+    --tg-theme-bg-color: #1f1f1f;
+    --tg-theme-text-color: #ffffff;
+    --tg-theme-hint-color: #aaaaaa;
+    --item-bg-color: rgba(255,255,255,0.05);
+    --modal-overlay: rgba(0,0,0,0.7);
+    --border-color: rgba(255,255,255,0.1);
 }
 
 body {
@@ -47,7 +59,7 @@ body {
 .reminder-item {
     padding: 16px;
     margin-bottom: 8px;
-    background: rgba(0,0,0,0.03);
+    background: var(--item-bg-color);
     border-radius: 12px;
     display: flex;
     justify-content: space-between;
@@ -75,18 +87,20 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: var(--modal-overlay);
     z-index: 1000;
 }
 
 .modal-content {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     background: var(--tg-theme-bg-color);
     padding: 20px;
     border-radius: 20px 20px 0 0;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .modal-content h2 {
@@ -98,10 +112,12 @@ input {
     width: 100%;
     padding: 12px;
     margin-bottom: 12px;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 16px;
     box-sizing: border-box;
+    background: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
 }
 
 .modal-buttons {
@@ -126,4 +142,26 @@ input {
 .button-secondary {
     background: rgba(0,0,0,0.05);
     color: var(--tg-theme-text-color);
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: var(--tg-theme-hint-color);
+    font-size: 18px;
+    padding: 8px;
+    cursor: pointer;
+    opacity: 0.7;
+}
+
+.delete-btn:hover {
+    opacity: 1;
+}
+
+@media screen and (max-height: 600px) {
+    .modal-content {
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+    }
 } 

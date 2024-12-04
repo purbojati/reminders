@@ -1,13 +1,6 @@
 const tg = window.Telegram.WebApp;
 tg.ready();
 
-// Initialize theme
-const setThemeClass = () => {
-    document.documentElement.className = tg.colorScheme;
-}
-setThemeClass();
-tg.onEvent('themeChanged', setThemeClass);
-
 // DOM Elements
 const modal = document.getElementById('newReminderModal');
 const newReminderBtn = document.getElementById('newReminderBtn');
@@ -15,13 +8,31 @@ const cancelBtn = document.getElementById('cancelBtn');
 const saveBtn = document.getElementById('saveBtn');
 const reminderList = document.getElementById('reminderList');
 
+// Initialize theme
+const setThemeClass = () => {
+    document.documentElement.className = tg.colorScheme;
+    if (modal.style.display === 'block') {
+        modal.style.backgroundColor = tg.colorScheme === 'dark' ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)';
+    }
+}
+setThemeClass();
+tg.onEvent('themeChanged', setThemeClass);
+
 // Show/Hide Modal
-const showModal = () => modal.style.display = 'block';
+const showModal = () => {
+    modal.style.display = 'block';
+    setTimeout(() => {
+        document.getElementById('reminderTitle').focus();
+    }, 100);
+    document.body.classList.add('modal-open');
+};
+
 const hideModal = () => {
     modal.style.display = 'none';
     document.getElementById('reminderTitle').value = '';
     document.getElementById('reminderDate').value = '';
-}
+    document.body.classList.remove('modal-open');
+};
 
 // Event Listeners
 newReminderBtn.addEventListener('click', showModal);
