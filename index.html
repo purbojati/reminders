@@ -8,28 +8,30 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="reminderModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add Reminder</h2>
+            <input type="text" id="modalReminderTitle" placeholder="Reminder title">
+            <input type="datetime-local" id="modalDateTime">
+            <div class="modal-buttons">
+                <button class="button-secondary" onclick="closeModal()">Cancel</button>
+                <button class="button-primary" onclick="saveReminder()">Save</button>
+            </div>
+        </div>
+    </div>
+
     <div id="app">
         <div class="header">
             <h1>Reminders</h1>
-            <button id="newReminderBtn" class="add-button">+</button>
         </div>
 
         <div class="reminder-list" id="reminderList">
-            <!-- Reminders will be inserted here -->
-        </div>
-
-        <!-- New Reminder Modal -->
-        <div id="newReminderModal" class="modal">
-            <div class="modal-content">
-                <h2>New Reminder</h2>
-                <form id="reminderForm" onsubmit="return false;">
-                    <input type="text" id="reminderTitle" placeholder="Title" autocomplete="off" />
-                    <input type="datetime-local" id="reminderDate" />
-                    <div class="modal-buttons">
-                        <button id="cancelBtn" class="button-secondary" type="button">Cancel</button>
-                        <button id="saveBtn" class="button-primary" type="submit">Save</button>
-                    </div>
-                </form>
+            <div class="reminder-item new-reminder">
+                <div class="reminder-checkbox add-icon">+</div>
+                <input type="text" id="reminderTitle" placeholder="New Reminder" />
+                <div class="reminder-actions">
+                    <button class="date-button" onclick="openModal()">📅</button>
+                </div>
             </div>
         </div>
     </div>
