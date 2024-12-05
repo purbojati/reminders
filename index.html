@@ -10,13 +10,9 @@
 <body>
     <div id="reminderModal" class="modal">
         <div class="modal-content">
-            <h2 id="modalTitle">Add Reminder</h2>
-            <input type="text" id="modalReminderTitle" placeholder="Reminder title">
+            <h2 id="modalTitle">New Reminder</h2>
+            <input type="text" id="modalReminderTitle" placeholder="What do you want to be reminded about?" autofocus>
             <input type="datetime-local" id="modalDateTime">
-            <div class="modal-buttons">
-                <button class="button-secondary" onclick="closeModal()">Cancel</button>
-                <button class="button-primary" onclick="saveReminder()">Save</button>
-            </div>
         </div>
     </div>
 
@@ -26,16 +22,11 @@
         </div>
 
         <div class="reminder-list" id="reminderList">
-            <div class="reminder-item new-reminder">
-                <div class="reminder-checkbox add-icon" onclick="openModal()">+</div>
-                <input type="text" id="reminderTitle" placeholder="New Reminder" onkeypress="if(event.key === 'Enter') openModal()" />
-                <div class="reminder-actions">
-                    <button class="date-button" onclick="openModal()">📅</button>
-                </div>
-            </div>
         </div>
+        
+        <button class="fab" onclick="showNewReminderPopup()">+</button>
     </div>
-    <div class="version-tag">v0.002</div>
+
     <script src="app.js"></script>
 </body>
 </html>

@@ -33,22 +33,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle back button
+    // Set up native input field
+    tg.CloudStorage.getItem('draft_reminder', (err, value) => {
+        if (!err && value) {
+            tg.MainButton.setText('Add Reminder');
+            tg.MainButton.show();
+        }
+    });
+
+    // Handle back button for modal only
     tg.BackButton.onClick(() => {
         if (reminderModal.style.display === 'block') {
             closeModal();
-            return;
         }
-        tg.close();
     });
 
-    // Handle main button
-    const mainButton = tg.MainButton;
-    mainButton.setText('Save Reminder');
-    mainButton.onClick(saveReminder);
-
-    // Handle closing confirmation
-    tg.enableClosingConfirmation();
+    // Set up the input field
+    tg.MainButton.setText('Add Reminder');
+    tg.MainButton.hide();
 });
 
 // Initialize theme with CSS variables
@@ -87,19 +89,20 @@ reminderInput.addEventListener('keypress', (e) => {
 
 // Simplified modal handling
 function openModal(title = '') {
-    modalReminderTitle.value = title || reminderInput.value.trim();
+    modalReminderTitle.value = title || '';
     modalDateTime.value = '';
     editingReminderId = null;
     reminderModal.style.display = 'block';
     modalReminderTitle.focus();
     
-    // Show back button and main button
     tg.BackButton.show();
+    tg.MainButton.setText('Save Reminder');
     tg.MainButton.show();
+    tg.MainButton.onClick(handleMainButtonClick);
 }
 
-// Simplified saveReminder function
-function saveReminder() {
+// New function to handle MainButton clicks
+function handleMainButtonClick() {
     const title = modalReminderTitle.value.trim();
     const date = modalDateTime.value;
     
@@ -112,25 +115,39 @@ function saveReminder() {
         completed: false
     };
 
-    storeReminder(reminder);
-    addReminderToUI(reminder);
-    closeModal();
-    reminderInput.value = '';
+    // Save to localStorage
+    const reminders = getReminders();
+    const existingIndex = reminders.findIndex(r => r.id === reminder.id);
+    
+    if (existingIndex !== -1) {
+        reminders[existingIndex] = reminder;
+    } else {
+        reminders.push(reminder);
+    }
+    localStorage.setItem('reminders', JSON.stringify(reminders));
 
+    // Update UI
+    loadReminders();
+
+    // Close modal
+    closeModal();
+
+    // Send to Telegram
     tg.sendData(JSON.stringify({
         type: 'new_reminder',
         reminder: reminder
     }));
 }
 
-// Add these new functions
 function closeModal() {
     reminderModal.style.display = 'none';
+    modalReminderTitle.value = '';
+    modalDateTime.value = '';
     editingReminderId = null;
     
-    // Hide back button and main button
     tg.BackButton.hide();
     tg.MainButton.hide();
+    tg.MainButton.offClick(handleMainButtonClick);
 }
 
 // Add reminder to UI
@@ -233,8 +250,19 @@ function deleteReminder(id) {
 
 // Load reminders on startup
 function loadReminders() {
+    // Clear existing reminders first
+    const completedSection = document.querySelector('.completed-section');
+    if (completedSection) {
+        completedSection.remove();
+    }
+    
+    // Get all reminders and sort them
     const reminders = getReminders();
+    
+    // Add uncompleted reminders
     reminders.filter(r => !r.completed).forEach(reminder => addReminderToUI(reminder));
+    
+    // Add completed reminders
     reminders.filter(r => r.completed).forEach(reminder => addReminderToUI(reminder));
 }
 
@@ -242,4 +270,70 @@ function loadReminders() {
 document.documentElement.style.setProperty('--tg-viewport-height', `${window.innerHeight}px`);
 window.addEventListener('resize', () => {
     document.documentElement.style.setProperty('--tg-viewport-height', `${window.innerHeight}px`);
-}); 
+});
+
+// Add new function to handle reminder creation from native input
+function handleNativeInput(text) {
+    if (!text.trim()) return;
+    
+    const reminder = {
+        id: Date.now(),
+        title: text.trim(),
+        date: null,
+        completed: false
+    };
+
+    storeReminder(reminder);
+    addReminderToUI(reminder);
+    
+    tg.sendData(JSON.stringify({
+        type: 'new_reminder',
+        reminder: reminder
+    }));
+
+    // Clear the input
+    tg.CloudStorage.removeItem('draft_reminder');
+}
+
+// Update the MainButton click handler
+tg.MainButton.onClick(() => {
+    if (reminderModal.style.display === 'block') {
+        handleMainButtonClick();
+    } else {
+        tg.CloudStorage.getItem('draft_reminder', (err, value) => {
+            if (!err && value) {
+                handleNativeInput(value);
+            }
+        });
+    }
+});
+
+// Add new function to show bottom drawer
+function showNewReminderPopup() {
+    document.body.style.overflow = 'hidden';
+    reminderModal.style.display = 'block';
+    modalReminderTitle.value = '';
+    modalDateTime.value = '';
+    
+    reminderModal.offsetHeight;
+    
+    setTimeout(() => {
+        modalReminderTitle.focus();
+    }, 300);
+    
+    tg.MainButton.setText('Add Reminder');
+    tg.MainButton.show();
+    tg.BackButton.show();
+    
+    tg.MainButton.onClick(handleMainButtonClick);
+    
+    window.visualViewport.addEventListener('resize', handleViewportResize);
+}
+
+// Handle viewport resize (keyboard appearance)
+function handleViewportResize() {
+    const modalContent = document.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.style.bottom = `${window.visualViewport.height - window.innerHeight}px`;
+    }
+} 
